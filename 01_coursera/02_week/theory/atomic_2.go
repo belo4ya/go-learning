@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"sync/atomic" // atomic_2.go
+	"sync/atomic"
 	"time"
 )
 
