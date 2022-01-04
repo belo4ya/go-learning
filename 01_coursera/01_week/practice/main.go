@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"io"
 	"os"
 )
 
@@ -18,21 +19,27 @@ func mapUniq() {
 	}
 }
 
-func sortedUniq() {
+func sortedUniq(input io.Reader, output io.Writer) error {
 	var prev string
-	in := bufio.NewScanner(os.Stdin)
+	in := bufio.NewScanner(input)
 	for in.Scan() {
 		txt := in.Text()
 		if txt < prev {
-			panic("Data not sorted!")
+			return fmt.Errorf("data not sorted")
 		}
 		if txt != prev {
-			fmt.Println(txt)
+			if _, err := fmt.Fprintln(output, txt); err != nil {
+				return err
+			}
 		}
 		prev = txt
 	}
+	return nil
 }
 
 func main() {
-	sortedUniq()
+	err := sortedUniq(os.Stdin, os.Stdout)
+	if err != nil {
+		panic(err.Error())
+	}
 }
