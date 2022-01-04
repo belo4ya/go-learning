@@ -5,6 +5,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 )
 
@@ -155,6 +156,7 @@ func dirTree(out io.Writer, path string, printFiles bool) error {
 }
 
 func main() {
+	fmt.Println(runtime.Version())
 	out := os.Stdout
 	if !(len(os.Args) == 2 || len(os.Args) == 3) {
 		panic("usage go run main.go . [-f]")
