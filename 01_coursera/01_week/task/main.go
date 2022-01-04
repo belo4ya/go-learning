@@ -4,9 +4,61 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"path/filepath"
-	"strings"
 )
+
+type Stack struct {
+	stack []os.DirEntry
+}
+
+func NewStack(entries ...os.DirEntry) *Stack {
+	s := new(Stack)
+	s.stack = entries
+	return s
+}
+
+func (s *Stack) Push(el os.DirEntry) {
+	s.stack = append(s.stack, el)
+}
+
+func (s *Stack) Pop() os.DirEntry {
+	i := len(s.stack) - 1
+	el := s.stack[i]
+	s.stack = s.stack[:i]
+	return el
+}
+
+func (s *Stack) Len() int {
+	return len(s.stack)
+}
+
+func dirTree(out io.Writer, path string, printFiles bool) error {
+	const (
+		branch   string = "───"
+		vertical string = "├"
+		corner   string = "└"
+	)
+
+	files, err := os.ReadDir(path)
+	if err != nil {
+		return err
+	}
+
+	stack := NewStack()
+	for _, file := range files {
+		stack.Push(file)
+	}
+
+	var tree string
+	for stack.Len() != 0 {
+		file := stack.Pop()
+		fmt.Println(file.Name())
+	}
+
+	if _, err := fmt.Fprint(out, tree); err != nil {
+		return err
+	}
+	return nil
+}
 
 func main() {
 	out := os.Stdout
