@@ -3,13 +3,14 @@ package main
 import (
 	"fmt"
 	"io"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
 )
 
 type StackEl struct {
-	Entry  os.DirEntry
+	Entry  os.FileInfo
 	Parent string
 	IsLast bool
 }
@@ -47,31 +48,26 @@ func (s *Stack) Len() int {
 	return len(s.stack)
 }
 
-func getSizeLabel(entry os.DirEntry) (string, error) {
+func getSizeLabel(entry os.FileInfo) (string, error) {
 	if entry.IsDir() {
 		return "", nil
 	}
 
-	info, err := entry.Info()
-	if err != nil {
-		return "", err
-	}
-
-	size := info.Size()
+	size := entry.Size()
 	if size == 0 {
 		return " (empty)", nil
 	}
 	return fmt.Sprintf(" (%db)", size), nil
 }
 
-func readDir(name string, includeF bool) ([]os.DirEntry, error) {
-	entries, err := os.ReadDir(name)
+func readDir(name string, includeF bool) ([]os.FileInfo, error) {
+	entries, err := ioutil.ReadDir(name)
 	if err != nil {
 		return nil, err
 	}
 
 	if !includeF {
-		var dirs []os.DirEntry
+		var dirs []os.FileInfo
 		for _, entry := range entries {
 			if entry.IsDir() {
 				dirs = append(dirs, entry)
